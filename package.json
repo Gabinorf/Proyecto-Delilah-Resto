@@ -1,0 +1,29 @@
+{
+  "name": "proyecto-delilah-resto",
+  "version": "1.0.0",
+  "description": "Proyecto de la carrera DWFS en Acámica",
+  "main": "config/server.js",
+  "scripts": {
+    "ini": "nodemon config/server.js",
+    "setup": "node db/setup.js",
+    "insert": "node db/insert.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gabinorf/Proyecto-Delilah-Resto.git"
+  },
+  "author": "Gabino Rodríguez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gabinorf/Proyecto-Delilah-Resto/issues"
+  },
+  "homepage": "https://github.com/Gabinorf/Proyecto-Delilah-Resto#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.6"
+  }
+}

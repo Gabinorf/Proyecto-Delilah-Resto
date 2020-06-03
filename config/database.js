@@ -13,4 +13,4 @@ const sequelize = new Sequelize( data.name, data.user, data.password, {
         }
 });
 
-module.exports = {sequelize};
+module.exports = {sequelize, Sequelize};

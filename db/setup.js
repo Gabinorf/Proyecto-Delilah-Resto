@@ -22,7 +22,7 @@ async function structureDB (){
         email                   VARCHAR(120) NOT NULL,
         phone                   VARCHAR(60) NOT NULL,
         address                 VARCHAR(120) NOT NULL,
-        password                VARCHAR(60) NOT NULL,
+        password                VARCHAR(120) NOT NULL,
         admin                   BOOLEAN NOT NULL DEFAULT FALSE,
         created                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 

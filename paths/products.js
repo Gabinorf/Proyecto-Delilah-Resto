@@ -6,11 +6,28 @@ const db = require('../config/database');
 
 //  OBTENER LISTA DE PRODUCTOS
 router.get('/', security.autorizarUsuario, async (req, res) => {
-    await db.sequelize.query('SELECT * FROM products',
+    if (req.query.name){
+        const name = req.query.name;
+         db.sequelize.query(`SELECT * FROM products WHERE name LIKE '${name}%'`,
+            {type: db.sequelize.QueryTypes.SELECT})
+        .then(response=>{
+            if (response.length == 0){
+                res.status(404).json({msj: 'Producto no encontrado'});
+            }
+            else{
+                res.status(200).json(response);
+            }
+        })
+    }
+    else{
+        await db.sequelize.query(`SELECT * FROM products`,
         {type: db.sequelize.QueryTypes.SELECT})
-    .then(response=>{
-        res.status(200).json(response);
-    })
+        .then(response=>{
+            res.status(200).json(response);
+        })
+    }
+    
+   
 });
 
 
@@ -51,7 +68,7 @@ router.get('/:id', security.autorizarUsuario, async (req, res) => {
         {type: db.sequelize.QueryTypes.SELECT})
     .then(response=>{
         if (response.length == 0){
-            res.status(404).json({msj: 'No se encontraron resultados'});
+            res.status(404).json({msj: 'Producto no encontrado'});
         }
         else{
             res.status(200).json(response);
@@ -60,13 +77,39 @@ router.get('/:id', security.autorizarUsuario, async (req, res) => {
 });
 
 // ACTUALIZAR PRODUCTO POR ID
-router.put('/:id', security.autorizarUsuario, (req,res)=>{
+router.put('/:id', security.autorizarUsuario, async (req,res)=>{
     const id = req.params.id;
+    const {name, description, price, image, stock}=req.body;
     if(req.admin){
-        db.sequelize.query(`UPDATE products SET name = ?, description = ?, price = ?, image = ?, stock = ? WHERE id=${id}`,
-        {replacements: [req.body.name, req.body.description, req.body.price, req.body.image, req.body.stock]})
+        await db.sequelize.query(`SELECT * FROM products WHERE id=${id}`,
+            {type: db.sequelize.QueryTypes.SELECT})
         .then(response=>{
-            res.status(200).json({msj:"Actualización exitosa"});      
+            if (response.length == 0){
+                res.status(404).json({msj: 'Producto no encontrado'});
+            }
+            else{
+                if(name!=""){
+                    db.sequelize.query(`UPDATE products SET name = ? WHERE id=${id}`,
+                    {replacements: [name]});   
+                }
+                if(description!=""){
+                    db.sequelize.query(`UPDATE products SET description = ? WHERE id=${id}`,
+                    {replacements: [description]});   
+                }
+                if(price!=""){
+                    db.sequelize.query(`UPDATE products SET price = ? WHERE id=${id}`,
+                    {replacements: [price]});   
+                }
+                if(image!=""){
+                    db.sequelize.query(`UPDATE products SET image = ? WHERE id=${id}`,
+                    {replacements: [image]});   
+                }
+                if(stock!=""){
+                    db.sequelize.query(`UPDATE products SET stock = ? WHERE id=${id}`,
+                    {replacements: [stock]});   
+                }
+                res.status(200).json({msj:"Actualización exitosa"});      
+            }
         })
     }
     else{
@@ -75,14 +118,23 @@ router.put('/:id', security.autorizarUsuario, (req,res)=>{
 })
 
 // ELIMINAR PRODUCTO
-router.delete('/:id', security.autorizarUsuario, (req,res)=>{
+router.delete('/:id', security.autorizarUsuario, async (req,res)=>{
     const id = req.params.id;
     if(req.admin){
-        db.sequelize.query(`DELETE FROM products WHERE id=?`,
-        {replacements: [id]})
-    .then((response=>{
-        res.status(204).send("Producto eliminado")
-    })) 
+        await db.sequelize.query(`SELECT * FROM products WHERE id=${id}`,
+            {type: db.sequelize.QueryTypes.SELECT})
+        .then(response=>{
+            if (response.length == 0){
+                res.status(404).json({msj: 'Producto no encontrado'});
+            }
+            else{
+                db.sequelize.query(`DELETE FROM products WHERE id=?`,
+                {replacements: [id]})
+                .then(response=>{
+                    res.status(200).json({msj: "Producto eliminado"});
+                })        
+            }
+        })
     }
     else{
         res.json({msj: "Sin permiso"})
@@ -91,14 +143,22 @@ router.delete('/:id', security.autorizarUsuario, (req,res)=>{
 
 // AGREGAR UN PRODUCTO A FAVORITOS
 router.post("/:id", security.autorizarUsuario, async (req,res)=>{
-    const id = req.params.id;  
-    db.sequelize.query("INSERT INTO favorites VALUES (?, ?, ?)",
-        {replacements: [null, req.id, id]})
+    const id = req.params.id; 
+    await db.sequelize.query(`SELECT * FROM products WHERE id=${id}`,
+        {type: db.sequelize.QueryTypes.SELECT})
     .then(response=>{
-            res.status(201).json({msj:"Producto añadido"});
-    })
+        if (response.length == 0){
+            res.status(404).json({msj: 'Producto no encontrado'});
+        }
+        else{
+            db.sequelize.query("INSERT INTO favorites VALUES (?, ?, ?)",
+                {replacements: [null, req.id, id]})
+            .then(response=>{
+                    res.status(201).json({msj:"Producto añadido"});
+            })
+        }
+    }) 
 })
 
-    
 
 module.exports = router;

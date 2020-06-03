@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const security = require('../config/security');
 
 /****************************************************************************************************
         INSERTAR ALGUNOS DATOS EN LA DB
@@ -7,6 +8,7 @@ const db = require('../config/database');
 async function dataDB () {
 
     //Inserta un usuario administrador
+    const passwordCrypt = await security.encryptPassword("super_segura");
     await db.sequelize.query(
         `INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         {replacements:  [
@@ -16,7 +18,7 @@ async function dataDB () {
                             'master@admin.com', 
                             '+02666228882', 
                             'Local Host 345', 
-                            'super_segura', 
+                            passwordCrypt, 
                             true, 
                             null, 
                             null

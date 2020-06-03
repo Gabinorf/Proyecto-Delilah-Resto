@@ -27,6 +27,7 @@ Se puede iniciar el servidor ejecutando `npm run ini`
 ## Instrucciones
 1- Clonar el repositorio   
 2- Instalar las dependencias necesarias, especificadas en el archivo `package.json`  
-3- Ejecutar `npm run setup`  
-4- Ejecutar `npm run insert`  
-5- Ejecutar `npm run ini`
+3- Ejecutar `XAMPP` e iniciar los módulos `Apache` y `MySql`  
+4- Desde la terminal ejecutar `npm run setup` para crear la base de datos `delilah_resto_v1` , seguido de `npm run insert` para insertar algunos datos.  
+5- Desde la terminal ejecutar `npm run ini` para iniciar el servidor.
+6- Ejecutar `Postman` y testear el funcionamiento de la API.

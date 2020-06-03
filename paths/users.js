@@ -4,8 +4,11 @@ const security = require('../config/security');
 const db = require('../config/database');
 
 
+
 //  CREAR USUARIO
 router.post('/',async (req,res)=>{
+    const {username, fullname, email, phone, address, password} = req.body;
+    const passwordCrypt = await security.encryptPassword(password);
     try{
         let result = await db.sequelize.query(`SELECT username, email FROM users`,
                 {type: db.sequelize.QueryTypes.SELECT})
@@ -15,19 +18,19 @@ router.post('/',async (req,res)=>{
         let notExist = true; 
        
         await result.forEach(elemento => {
-            if (elemento.username.toLowerCase() == req.body.username.toLowerCase() || elemento.email == req.body.email) {
+            if (elemento.username.toLowerCase() == req.body.username.toLowerCase() || elemento.email.toLowerCase() == req.body.email.toLowerCase()) {
                 notExist = false;
             }
         });     
         if (notExist) {
             db.sequelize.query(`INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                {replacements: [null, req.body.username, req.body.fullname, req.body.email, req.body.phone, req.body.address, req.body.password, false, null, null]})
+                {replacements: [null, username, fullname, email, phone, address, passwordCrypt, false, null, null]})
             .then(response=>{
                 res.status(201).json({msj:"Nuevo usuario creado"});
             })
         }
         else{
-            res.status(409).json({msj:"El usuario ya existe"});
+            res.status(409).json({msj:"Usuario ya existe"});
         }
     }
     catch (err) {
@@ -44,7 +47,7 @@ router.get('/', security.autorizarUsuario, async (req, res) => {
                 {type: db.sequelize.QueryTypes.SELECT})
             .then(response=>{
                 if (response.length == 0){
-                    res.status(200).json({msj: 'No se econtraron resultados'});
+                    res.status(404).json({msj: 'Usuario no encontrado'});
                 }
                 else{
                     res.status(200).json(response);
@@ -65,7 +68,7 @@ router.get('/', security.autorizarUsuario, async (req, res) => {
 });
 
 //  INGRESO DE USUARIO
-router.post('/login', security.validarUsuario, (req, res) => {   
+router.get('/login', security.validarUsuario, (req, res) => {   
 });
 
 //  OBTENER USUARIO POR ID
@@ -76,7 +79,7 @@ router.get('/:id', security.autorizarUsuario, async (req, res) => {
         {type: db.sequelize.QueryTypes.SELECT})
         .then(response=>{
             if (response.length == 0){
-                res.status(404).json({msj: 'El usuario no existe'});
+                res.status(404).json({msj: 'Usuario no encontrado'});
             }
             else{
                 res.status(200).json(response);
@@ -89,14 +92,36 @@ router.get('/:id', security.autorizarUsuario, async (req, res) => {
 });
 
 //  ACTUALIZAR USUARIO POR ID
-router.put('/:id', security.autorizarUsuario, (req,res)=>{
+router.put('/:id', security.autorizarUsuario, async (req,res)=>{
     const id = req.params.id;
+    const {username, fullname, email, phone, address, password} = req.body;
+    const passwordCrypt = await security.encryptPassword(password);
     if(req.id == id){
-        db.sequelize.query(`UPDATE users SET username = ?, fullname = ?, email = ?, phone = ?, address = ?, password = ? WHERE id=${id}`,
-        {replacements: [req.body.username, req.body.fullname, req.body.email, req.body.phone, req.body.address, req.body.password]})
-        .then(response=>{
-           res.status(200).json({msj:"Actualizacion exitosa"});
-        })
+        if(username!=""){
+            db.sequelize.query(`UPDATE users SET username = ? WHERE id=${id}`,
+            {replacements: [username]});   
+        }
+        if(fullname!=""){
+            db.sequelize.query(`UPDATE users SET fullname = ? WHERE id=${id}`,
+            {replacements: [fullname]});   
+        }
+        if(email!=""){
+            db.sequelize.query(`UPDATE users SET email = ? WHERE id=${id}`,
+            {replacements: [email]});   
+        }
+        if(phone!=""){
+            db.sequelize.query(`UPDATE users SET phone = ? WHERE id=${id}`,
+            {replacements: [phone]});   
+        }
+        if(address!=""){
+            db.sequelize.query(`UPDATE users SET address = ? WHERE id=${id}`,
+            {replacements: [address]});   
+        }
+        if(password!=""){
+            db.sequelize.query(`UPDATE users SET password = ? WHERE id=${id}`,
+            {replacements: [passwordCrypt]});   
+        }
+        res.status(200).json({msj:"Actualización exitosa"});            
     }
     else{
         res.status(403).json({msj: "Sin permiso"})
@@ -104,14 +129,23 @@ router.put('/:id', security.autorizarUsuario, (req,res)=>{
 })
 
 //  ELIMINAR USUARIO POR ID
-router.delete('/:id', security.autorizarUsuario, (req,res)=>{
+router.delete('/:id', security.autorizarUsuario, async (req,res)=>{
     const id = req.params.id;
     if(req.id == id || req.admin){
-        db.sequelize.query(`DELETE FROM users WHERE id=?`,
-        {replacements: [id]})
-    .then((response=>{
-        res.status(204).json({msj: "Usuario eliminado"})   
-    })) 
+        await db.sequelize.query(`SELECT * FROM users WHERE id=${id}`,
+        {type: db.sequelize.QueryTypes.SELECT})
+        .then(response=>{
+            if (response.length == 0){
+                res.status(404).json({msj: 'Usuario no encontrado'});
+            }
+            else{
+                db.sequelize.query(`DELETE FROM users WHERE id=?`,
+                    {replacements: [id]})
+                .then(response=>{
+                    res.status(200).json({msj: "Usuario eliminado"})   
+                })        
+            }    
+        })
     }
     else{
         res.status(403).json({msj: "Sin permiso"})
@@ -121,18 +155,27 @@ router.delete('/:id', security.autorizarUsuario, (req,res)=>{
 
 
 // DAR PERMISOS DE ADMINISTRADOR
-router.patch('/:id', security.autorizarUsuario, (req,res)=>{
+router.patch('/:id', security.autorizarUsuario, async (req,res)=>{
     const id = req.params.id;
     if(req.admin){
-        db.sequelize.query(`UPDATE users SET admin = ? WHERE id=${id}`,
-        {replacements: [req.query.admin]})
+        await db.sequelize.query(`SELECT * FROM users WHERE id=${id}`,
+            {type: db.sequelize.QueryTypes.SELECT})
         .then(response=>{
-            if (req.query.admin==1){
-                res.status(200).json({msj:"Operación exitosa"});
+            if (response.length == 0){
+                res.status(404).json({msj: 'Usuario no encontrado'});
             }
             else{
-                res.status(200).json({msj:"Operación exitosa"});
-            }       
+                db.sequelize.query(`UPDATE users SET admin = ? WHERE id=${id}`,
+                    {replacements: [req.query.admin]})
+                .then(response=>{
+                    if (req.query.admin==1){
+                        res.status(200).json({msj:"Operación exitosa"});
+                    }
+                    else{
+                        res.status(200).json({msj:"Operación exitosa"});
+                    }       
+                })
+            }    
         })
     }
     else{
@@ -144,17 +187,26 @@ router.patch('/:id', security.autorizarUsuario, (req,res)=>{
 router.get("/:id/favorites", security.autorizarUsuario, async (req,res)=>{
     const id = req.params.id;
     if(req.id == id || req.admin){
-        await db.sequelize.query(`SELECT favorites.product_id, products.name, products.description, products.price FROM favorites 
-            JOIN products ON favorites.product_id = products.id WHERE user_id=${id}`,
+        await db.sequelize.query(`SELECT * FROM users WHERE id=${id}`,
             {type: db.sequelize.QueryTypes.SELECT})
-        .then(response=>{
+        .then(async (response) => {
             if (response.length == 0){
                 res.status(404).json({msj: 'No se encontraron resultados'});
             }
             else{
-                res.status(200).json(response);
+                await db.sequelize.query(`SELECT favorites.product_id, products.name, products.description, products.price FROM favorites 
+                    JOIN products ON favorites.product_id = products.id WHERE user_id=${id}`,
+                    {type: db.sequelize.QueryTypes.SELECT})
+                .then(response=>{
+                    if (response.length == 0){
+                        res.status(404).json({msj: 'No se encontraron resultados'});
+                    }
+                    else{
+                        res.status(200).json(response);
+                    }
+                })
             }
-        })
+        })        
     }
     else{
         res.status(403).json({msj: "Sin permiso"})

@@ -4,7 +4,7 @@
   "description": "Proyecto de la carrera DWFS en Acámica",
   "main": "config/server.js",
   "scripts": {
-    "ini": "nodemon config/server.js",
+    "ini": "node config/server.js",
     "setup": "node db/setup.js",
     "insert": "node db/insert.js"
   },
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Gabinorf/Proyecto-Delilah-Resto#readme",
   "dependencies": {
+    "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",

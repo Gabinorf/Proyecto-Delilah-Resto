@@ -29,7 +29,7 @@ paths:
         201:
           description: Nuevo usuario creado
         409:
-          description: El usuario ya existe
+          description: Usuario ya existe
     get:
       tags:
         - Usuarios
@@ -56,17 +56,32 @@ paths:
           description: Sin autorización    
         403:
           description: Sin permiso
+        404:
+          description: Usuario no encontrado  
   '/users/login':
-    post:
+    get:
       tags: 
         - Usuarios
       summary: Ingreso de usuario  
-      requestBody:
-        required: true
-        content:
-          applicatio/json:
-            schema:
-              $ref: '#/components/schemas/login'
+      parameters:
+        - name: username
+          in: query
+          description: nombre de usuario 
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: email del usuario 
+          required: true
+          schema:
+            type: string  
+        - name: password
+          in: query
+          description: contraseña del usuario 
+          required: true
+          schema:
+            type: string    
       responses:
         200:
           description: Operación exitosa
@@ -75,7 +90,7 @@ paths:
               example: {
                 token: "string"
               }
-        400:
+        401:
           description: Usuario/contraseña incorrecto
   '/users/{userId}':
     get:
@@ -105,7 +120,7 @@ paths:
         403:
           description: Sin permiso
         404:
-          description: El usuario no existe
+          description: Usuario no encontrado
     put:
       tags: 
         - Usuarios
@@ -148,12 +163,14 @@ paths:
       security:
         - autenticacionJWT: []
       responses:
-        204:
+        200:
           description: Usuario eliminado
         401:
           description: Sin autorización 
         403:
           description: Sin permiso
+        404:
+          description: Usuario no encontrado  
     patch:
       tags: 
         - Usuarios
@@ -181,6 +198,8 @@ paths:
           description: Sin autorización
         403:
           description: Sin permiso
+        404:
+          description: Usuario no encontrado  
   '/users/{userId}/favorites':
     get:
       tags: 
@@ -215,6 +234,7 @@ paths:
       tags:
         - Productos
       summary: Crear producto
+      description: Solo puede ser realizada por el administrador.
       security:
         - autenticacionJWT: []
       requestBody:
@@ -228,10 +248,20 @@ paths:
           description: Nuevo producto creado
         409:
           description: El producto ya existe  
+        401:
+          description: Sin autorización 
+        403:
+          description: Sin permiso  
     get:
       tags:
         - Productos
-      summary: Obtener lista de productos  
+      summary: Obtener lista de productos
+      parameters: 
+        - name: name
+          in: query
+          description: Se puede utilizar como filtro de búsqueda por nombre
+          schema:
+            type: string
       security:
         - autenticacionJWT: []
       responses:
@@ -243,8 +273,10 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/product"
-        400:
-          description: Error
+        401:
+          description: Sin autorización    
+        404:
+          description: Producto no encontrado 
   '/products/{productId}':  
     get:
       tags: 
@@ -268,8 +300,10 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/product"  
+        401:
+          description: Sin autorización           
         404:
-          description: No se encontraron resultados
+          description: Producto no encontrado
     put:
       tags: 
         - Productos
@@ -298,7 +332,7 @@ paths:
         403:
           description: Sin permiso  
         404:
-          description: El producto no existe  
+          description: Producto no encontrado  
     delete:
       tags: 
         - Productos
@@ -314,12 +348,14 @@ paths:
       security:
         - autenticacionJWT: []
       responses:
-        204:
+        200:
           description: Producto eliminado
         401:
           description: Sin autorización 
         403:
           description: Sin permiso   
+        404:
+          description: Producto no encontrado  
     post:
       tags: 
         - Productos
@@ -339,9 +375,9 @@ paths:
           description: Producto añadido
         401:
           description: Sin autorización 
-        403:
-          description: Sin permiso      
-  /order:
+        404:
+          description: Producto no encontrado     
+  /orders:
     post:
       tags:
         - Pedidos
@@ -354,8 +390,7 @@ paths:
           description: Pedido creado
         401:
           description: Sin autorización 
-        403:
-          description: Sin permiso
+        
     get:
       tags:
         - Pedidos
@@ -389,7 +424,7 @@ paths:
       tags: 
         - Pedidos
       summary: Agregar producto al pedido
-      description: Solo puede ser realizado por el usuario del pedido
+      description: Solo puede ser realizado por el usuario del pedido.
       parameters:
         - name: orderId
           in: path
@@ -410,6 +445,10 @@ paths:
           description: Producto añadido al pedido
         401:
           description: Sin autorización
+        403:
+          description: Sin permiso
+        404: 
+          description: Producto no encontrado
     get:
       tags: 
         - Pedidos
@@ -437,6 +476,8 @@ paths:
           description: Sin autorización 
         403:
           description: Sin permiso
+        404: 
+          description: Pedido no encontrado  
      
     delete:
       tags: 
@@ -453,7 +494,7 @@ paths:
       security:
         - autenticacionJWT: []
       responses:
-        204:
+        200:
           description: Pedido eliminado
         401:
           description: Sin autorización 
@@ -461,6 +502,8 @@ paths:
           description: No se puede eliminar
         403:
           description: Sin permiso  
+        404: 
+          description: Pedido no encontrado  
     put:
       tags: 
         - Pedidos
@@ -489,7 +532,9 @@ paths:
         403:
           description: Sin permiso  
         400: 
-          description: Error  
+          description: No se puede confirmar  
+        404: 
+          description: Pedido no encontrado  
     patch:
       tags: 
         - Pedidos
@@ -516,7 +561,9 @@ paths:
         401:
           description: Sin autorización  
         403:
-          description: Sin permiso   
+          description: Sin permiso  
+        404: 
+          description: Pedido no encontrado  
   '/orders/{orderId}/{productId}':
     delete:
       tags: 
@@ -539,10 +586,14 @@ paths:
       security:
         - autenticacionJWT: []
       responses:
-        201:
+        200:
           description: Producto eliminado del pedido
         401:
-          description: Sin autorización      
+          description: Sin autorización     
+        403:
+          description: Sin permiso  
+        404: 
+          description: Pedido no encontrado  
       
 
 #Fin paths
@@ -579,17 +630,6 @@ components:
           type: string
           example: "string"
        
-    login:
-      type: object
-      properties:
-        username:
-          type: string
-          example: "string"
-        password:
-          type: string
-          example: "string"
-          
-          
     user:
       type: object
       properties:
@@ -641,12 +681,12 @@ components:
         price:
           type: number
           format: double
-          example: 0.00
+          example: 0.50
         image:
           type: string
           example: "string"
         stock:
-          type: boolean
+          type: integer
           example: 1
         created:
           type: string
@@ -686,13 +726,13 @@ components:
         price:
           type: number
           format: double
-          example: 0.00
+          example: 50.80
         image:
           type: string
           example: "string"
         stock:
-          type: boolean
-          example: 1
+          type: integer
+          example: 99
     order:
       type: object
       properties:
@@ -792,34 +832,7 @@ components:
             - cash
             - credit card
             
-    orders_products:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        order_id:
-          type: integer
-          example: 1
-        product_id:
-          type: integer
-          example: 1
-          
-    users_products:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        user_id:
-          type: integer
-          example: 1
-        product_id:
-          type: integer
-          example: 1 
-        favorite:
-          type: boolean
-          example: 1  
+    
           
           
         

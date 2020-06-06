@@ -455,7 +455,7 @@ paths:
       tags:
         - Pedidos
       summary: Crear pedido  
-      description: Crear un pedido
+      description: El usuario pude generar un nuevo pedido con un listado de productos
       parameters: 
         - name: Authorization bearer
           in: header

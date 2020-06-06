@@ -6,15 +6,14 @@ const db = require('../config/database');
 
 // CREAR NUEVO PEDIDO
 router.post("/", security.autorizarUsuario, async (req,res)=>{
-    const detail = req.body.detail;
-    
+    const detail = req.body.detail;  
     await db.sequelize.query("INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?)",
-    {replacements: [null, req.id, req.body.total, req.body.payment, "new", null, null]})
+        {replacements: [null, req.id, req.body.total, req.body.payment, "new", null, null]})
     .then(async (response)=>{
         await detail.forEach(async (element) => {
             for (let i = 0; i < element.cuantity; i++) {
                 db.sequelize.query("INSERT INTO order_products VALUES (?, ?, ?)",
-                {replacements: [null, response[0], element.product_id]})
+                    {replacements: [null, response[0], element.product_id]})
                 .then(response=>{
                 }) 
             }

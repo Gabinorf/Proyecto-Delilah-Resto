@@ -22,7 +22,7 @@ paths:
       requestBody:
         required: true
         content:
-          applicatio/json:
+          application/json:
             schema:
              $ref: '#/components/schemas/userInputs'
       responses:
@@ -36,6 +36,12 @@ paths:
       summary: Obtener lista de usuarios  
       description: Solo puede ser realizada por el administrador.
       parameters: 
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: fullname
           in: query
           description: Se puede utilizar como filtro de búsqueda por nombre
@@ -98,6 +104,12 @@ paths:
         - Usuarios
       summary: Obtener usuario por ID
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: userId
           in: path
           description: ID del usuario 
@@ -127,6 +139,12 @@ paths:
       summary: Actualizar usuario por ID
       description: Solo puede ser realizado por el usuario.
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: userId
           in: path
           description: ID del usuario 
@@ -154,6 +172,12 @@ paths:
       summary: Eliminar usuario por ID
       description: Puede ser realizado por el usuario o administrador.
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: userId
           in: path
           description: ID del usuario 
@@ -177,6 +201,12 @@ paths:
       summary: Dar permisos de administrador
       description: Administrador puede dar permisos de administrador a un usuario.
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: userId
           in: path
           description: ID del usuario
@@ -206,6 +236,12 @@ paths:
         - Usuarios
       summary: Obtener productos favoritos
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: userId
           in: path
           description: ID del usuario 
@@ -235,12 +271,19 @@ paths:
         - Productos
       summary: Crear producto
       description: Solo puede ser realizada por el administrador.
+      parameters: 
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
       security:
         - autenticacionJWT: []
       requestBody:
         required: true
         content:
-          applicatio/json:
+          application/json:
             schema:
              $ref: '#/components/schemas/productInputs'
       responses:
@@ -257,6 +300,12 @@ paths:
         - Productos
       summary: Obtener lista de productos
       parameters: 
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: name
           in: query
           description: Se puede utilizar como filtro de búsqueda por nombre
@@ -283,6 +332,12 @@ paths:
         - Productos
       summary: Obtener producto por ID
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: productId
           in: path
           description: ID del producto 
@@ -310,6 +365,12 @@ paths:
       summary: Actualizar producto por ID
       description: Solo puede ser realizado por el administrador.
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: productId
           in: path
           description: ID del producto 
@@ -339,6 +400,12 @@ paths:
       summary: Eliminar producto por ID
       description: Solo puede ser realizado por el administrador.
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: productId
           in: path
           description: ID del producto
@@ -362,6 +429,12 @@ paths:
       summary: Añadir producto a favoritos
       description: Usuario puede añadir un producto por ID a su lista de favoritos.
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: productId
           in: path
           description: ID del producto 
@@ -383,8 +456,21 @@ paths:
         - Pedidos
       summary: Crear pedido  
       description: Crear un pedido
+      parameters: 
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
       security: 
         - autenticacionJWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/orderInputs'     
       responses:
         201:
           description: Pedido creado
@@ -397,6 +483,12 @@ paths:
       summary: Obtener lista de pedidos 
       description: Solo puede ser realizada por el administrador.
       parameters: 
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: userId
           in: query
           description: Se puede utilizar como filtro de búsqueda por id de usuario
@@ -420,41 +512,18 @@ paths:
         404: 
           description: No se encontraron resultados  
   '/orders/{orderId}':
-    post:
-      tags: 
-        - Pedidos
-      summary: Agregar producto al pedido
-      description: Solo puede ser realizado por el usuario del pedido.
-      parameters:
-        - name: orderId
-          in: path
-          description: ID del pedido
-          required: true
-          schema:
-            type: integer
-        - name: product
-          in: query
-          description: ID del producto
-          required: true
-          schema:
-            type: integer    
-      security:
-        - autenticacionJWT: []
-      responses:
-        201:
-          description: Producto añadido al pedido
-        401:
-          description: Sin autorización
-        403:
-          description: Sin permiso
-        404: 
-          description: Producto no encontrado
     get:
       tags: 
         - Pedidos
       summary: Obtener pedido por ID
       description: Solo puede ser realizado por el usuario del pedido o administrador
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: orderId
           in: path
           description: ID del pedido
@@ -478,69 +547,18 @@ paths:
           description: Sin permiso
         404: 
           description: Pedido no encontrado  
-     
-    delete:
-      tags: 
-        - Pedidos
-      summary: Eliminar pedido
-      description: Solo puede ser realizado por el usuario del pedido
-      parameters:
-        - name: orderId
-          in: path
-          description: ID del pedido
-          required: true
-          schema:
-            type: integer
-      security:
-        - autenticacionJWT: []
-      responses:
-        200:
-          description: Pedido eliminado
-        401:
-          description: Sin autorización 
-        400:
-          description: No se puede eliminar
-        403:
-          description: Sin permiso  
-        404: 
-          description: Pedido no encontrado  
-    put:
-      tags: 
-        - Pedidos
-      summary: Confirmar pedido
-      description: Solo puede ser realizado por el usuario del pedido
-      parameters:
-        - name: orderId
-          in: path
-          description: ID del pedido
-          required: true
-          schema:
-            type: integer
-      security:
-        - autenticacionJWT: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/orderInputs'   
-      responses:
-        200:
-          description: Actualización exitosa
-        401:
-          description: Sin autorización  
-        403:
-          description: Sin permiso  
-        400: 
-          description: No se puede confirmar  
-        404: 
-          description: Pedido no encontrado  
     patch:
       tags: 
         - Pedidos
       summary: Actualizar estado del pedido
       description: Solo puede ser realizado por el administrador
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: orderId
           in: path
           description: ID del pedido
@@ -564,37 +582,40 @@ paths:
           description: Sin permiso  
         404: 
           description: Pedido no encontrado  
-  '/orders/{orderId}/{productId}':
+   
     delete:
       tags: 
         - Pedidos
-      summary: Eliminar producto del pedido
+      summary: Eliminar pedido
       description: Solo puede ser realizado por el usuario del pedido
       parameters:
+        - name: Authorization bearer
+          in: header
+          description: token
+          required: true
+          schema:
+            type: string
         - name: orderId
           in: path
           description: ID del pedido
           required: true
           schema:
             type: integer
-        - name: productId
-          in: path
-          description: ID del producto
-          required: true
-          schema:
-            type: integer    
       security:
         - autenticacionJWT: []
       responses:
         200:
-          description: Producto eliminado del pedido
+          description: Pedido eliminado
         401:
-          description: Sin autorización     
+          description: Sin autorización 
+        400:
+          description: No se puede eliminar
         403:
           description: Sin permiso  
         404: 
           description: Pedido no encontrado  
-      
+    
+    
 
 #Fin paths
 
@@ -825,12 +846,23 @@ components:
         total:
           type: number
           format: double
-          example: 0.00
+          example: 350
         payment:
           type: string
           enum: 
             - cash
             - credit card
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: integer
+                example: 1
+              cuantity:
+                type: integer
+                example: 1  
             
     
           

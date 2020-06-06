@@ -10,17 +10,16 @@ router.post("/", security.autorizarUsuario, async (req,res)=>{
     
     await db.sequelize.query("INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?)",
     {replacements: [null, req.id, req.body.total, req.body.payment, "new", null, null]})
-    .then(response=>{
-        console.log(response[0],"mi respuesta")
-        res.status(201).json({msj:"Pedido creado"});
-        detail.forEach(async (element) => {
+    .then(async (response)=>{
+        await detail.forEach(async (element) => {
             for (let i = 0; i < element.cuantity; i++) {
                 db.sequelize.query("INSERT INTO order_products VALUES (?, ?, ?)",
-                    {replacements: [null, response[0], element.product_id]})
+                {replacements: [null, response[0], element.product_id]})
                 .then(response=>{
                 }) 
             }
         })    
+        res.status(201).json({msj:"Pedido creado"});
     })
 })
 

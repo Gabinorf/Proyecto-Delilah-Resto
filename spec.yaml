@@ -476,7 +476,6 @@ paths:
           description: Pedido creado
         401:
           description: Sin autorización 
-        
     get:
       tags:
         - Pedidos
@@ -582,7 +581,6 @@ paths:
           description: Sin permiso  
         404: 
           description: Pedido no encontrado  
-   
     delete:
       tags: 
         - Pedidos
@@ -614,21 +612,13 @@ paths:
           description: Sin permiso  
         404: 
           description: Pedido no encontrado  
-    
-    
-
-#Fin paths
-
 components:
-
   securitySchemes:
     autenticacionJWT:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      
   schemas:
-  
     userInputs:
       type: object
       properties:
@@ -650,7 +640,6 @@ components:
         password:
           type: string
           example: "string"
-       
     user:
       type: object
       properties:
@@ -686,7 +675,6 @@ components:
           type: string
           format: date-time  
           example: "2019-04-20T14:47:42.506Z"
-          
     product:
       type: object
       properties:
@@ -717,7 +705,6 @@ components:
           type: string
           format: date-time  
           example: "2019-04-20T14:47:42.506Z"
-          
     productFav:
       type: object
       properties:
@@ -734,7 +721,6 @@ components:
           type: number
           format: double
           example: 0.00
-          
     productInputs:
       type: object
       properties:
@@ -788,7 +774,6 @@ components:
           type: string
           format: date-time  
           example: "2019-04-20T14:47:42.506Z"   
-          
     orderCont:
       type: object
       properties:
@@ -839,7 +824,6 @@ components:
               type: number
               format: double
               example: 0.00  
-            
     orderInputs:
       type: object
       properties:
@@ -863,10 +847,3 @@ components:
               cuantity:
                 type: integer
                 example: 1  
-            
-    
-          
-          
-        
-        
-        
